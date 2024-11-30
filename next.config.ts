@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   images: {
     // reactStrictMode: true,
-    domains: ['http://localhost:3000'], // Add any other domains you need to support
+    // domains: ['http://localhost:3000'], // Add any other domains you need to support
     // domains: ['http://webai1.work4creation.fun'], // Add any other domains you need to support
     // If you're also using other domains (like production URL), add them here
     // For example: domains: ['localhost', 'your-production-domain.com']
@@ -11,7 +11,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'http',
-        hostname: 'localhost',
+        hostname: 'webai1.work4creation.fun',
         port: '3000',
         pathname: '/uploads/**',
       },
@@ -23,6 +23,18 @@ const nextConfig: NextConfig = {
       {
         source: '/:path*',
         headers: [
+          {
+            key: 'Access-Control-Allow-Origin',
+            value: 'https://webai2.work4creation.fun'
+          },
+          {
+            key: 'Access-Control-Allow-Methods',
+            value: 'GET, POST, PUT, DELETE, OPTIONS'
+          },
+          {
+            key: 'Access-Control-Allow-Headers',
+            value: 'Content-Type, Authorization'
+          },
           {
             key: 'Content-Security-Policy',
             value: `
