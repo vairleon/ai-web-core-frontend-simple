@@ -5,28 +5,15 @@ import Image from 'next/image';
 import Link from 'next/link';
 import api from '@/utils/api';
 import { Task } from '@/types/api';
-import Header from '@/components//portrait/Header';
+import Header from '@/components/portrait/Header';
 import Footer from '@/components/portrait/Footer';
 import { CompareSlider } from '@/components/imageutils/CompareSlider';
 import { Tooltip } from '@/components/imageutils/Tooltip';
 import SquigglyLines from '@/components/portrait/SquigglyLines';
 import Head from 'next/head';
-import { Rnd } from 'react-rnd'; // 导入 Rnd 组件
+import { Rnd } from 'react-rnd';
 import Feedback from '@/components/portrait/Feedback';
 import { useLanguage } from '@/contexts/LanguageContext';
-
-
-interface TemplateDataSchema {
-  imageUrl: string;
-  text: string;
-}
-
-interface TemplateResultSchema {
-  imageUrl: string;
-}
-
-// const TemplateId:string = '0';
-const TemplateName:string = 'portrait';
 
 // Constants
 const CONTAINER_WIDTH = 800;
@@ -45,8 +32,28 @@ const DEFAULT_SATURATION = 110;
 const MIN_RESIZE_WIDTH = 50;
 const MIN_RESIZE_HEIGHT = 50;
 const TEMPLATE_ITEM_WIDTH = 80;
-const TEMPLATE_GAP = 16;
+const TEMPLATE_GAP = 20;
 const SLIDER_ITEM_OFFSET = TEMPLATE_ITEM_WIDTH + TEMPLATE_GAP;
+const IMAGE_SIZES = "(max-width: 800px) 100vw, 800px";
+const THUMBNAIL_SIZES = "(max-width: 80px) 100vw, 80px";
+const TEMPLATE_NAME = 'portrait';
+const SLIDER_CONTAINER_WIDTH = 580;
+const ARROW_BUTTON_SIZE = 24;
+const STROKE_WIDTH = 2;
+const HEADING_MARGIN = 4;
+const TEMPLATE_CONTAINER_MARGIN = 8;
+
+interface TemplateDataSchema {
+  imageUrl: string;
+  text: string;
+}
+
+interface TemplateResultSchema {
+  imageUrl: string;
+}
+
+// const TemplateId:string = '0';
+const TemplateName:string = 'portrait';
 
 // Helper function to load images
 const loadImage = (src: string): Promise<HTMLImageElement> => {
@@ -58,6 +65,37 @@ const loadImage = (src: string): Promise<HTMLImageElement> => {
     img.src = src;
   });
 };
+
+// Portrait templates
+const PORTRAIT_TEMPLATES = [
+  '/Portrait/p1.jpeg',
+  '/Portrait/p2.jpeg',
+  '/Portrait/p3.jpeg',
+  '/Portrait/p4.jpg',
+  '/Portrait/p5.jpeg',
+  '/Portrait/p6.jpeg',
+];
+
+// 添加新的样式常量
+const TEMPLATE_CONTAINER_STYLES = {
+  width: CONTAINER_WIDTH,
+  padding: '20px',
+  backgroundColor: 'white',
+  borderRadius: '12px',
+  boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
+};
+
+const TEMPLATE_BUTTON_STYLES = `
+  relative 
+  shrink-0 
+  w-20
+  h-20
+  rounded-lg 
+  overflow-hidden 
+  border-2 
+  transition-colors
+  hover:border-blue-300
+`;
 
 export default function RemoveBackgroundAction() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -267,7 +305,7 @@ export default function RemoveBackgroundAction() {
               if (!blob) throw new Error('Failed to create blob');
               const croppedUrl = URL.createObjectURL(blob);
               
-              // 更新状态，但保持原始 resultUrl 不变
+              // 更新状，但保持原始 resultUrl 不变
               setResultUrl(imageUrl); // 原始图片用于 Compare 视图
               setCroppedResultUrl(croppedUrl); // 新增状态用于 Background 和 Color 视图
               
@@ -460,16 +498,8 @@ export default function RemoveBackgroundAction() {
     }
   };
 
-  // Add new state for templates
-  const [templates] = useState([
-    '/Portrait/p1.jpeg',
-    '/Portrait/p2.jpeg',
-    '/Portrait/p3.jpeg',
-    '/Portrait/p4.jpg',
-    '/Portrait/p5.jpeg',
-    '/Portrait/p6.jpeg',
-  ]);
-  const [selectedTemplate, setSelectedTemplate] = useState('/Portrait/p1.jpeg');
+  // 在组件内添加状态
+  const [selectedTemplate, setSelectedTemplate] = useState(PORTRAIT_TEMPLATES[0]);
 
   //
   return (
@@ -613,8 +643,10 @@ export default function RemoveBackgroundAction() {
         </div>
 
         {/* Portrait Templates Slider - Moved below the main content */}
-        <div className="w-full max-w-[800px] mt-0">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Select Portrait Style</h3>
+        <div className="w-full" style={TEMPLATE_CONTAINER_STYLES}>
+          <h3 className="text-lg font-medium text-gray-900 mb-4 text-center">
+            Select Portrait Style
+          </h3>
           <div className="flex items-center justify-center gap-4">
             {/* Left arrow */}
             <button
@@ -622,30 +654,42 @@ export default function RemoveBackgroundAction() {
               disabled={currentIndex === 0}
               className={`p-2 rounded-full ${currentIndex === 0 ? 'text-gray-300' : 'text-gray-600 hover:bg-gray-100'}`}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                width={ARROW_BUTTON_SIZE} 
+                height={ARROW_BUTTON_SIZE} 
+                fill="none" 
+                viewBox={`0 0 ${ARROW_BUTTON_SIZE} ${ARROW_BUTTON_SIZE}`} 
+                stroke="currentColor"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={STROKE_WIDTH} d="M15 19l-7-7 7-7" />
               </svg>
             </button>
 
             {/* Templates Container */}
-            <div className="overflow-hidden w-[580px]">
+            <div className="overflow-hidden" style={{ width: SLIDER_CONTAINER_WIDTH }}>
               <div 
                 className="flex gap-4 transition-transform duration-300 ease-in-out"
                 style={{ transform: `translateX(-${currentIndex * SLIDER_ITEM_OFFSET}px)` }}
               >
-                {templates.map((template, index) => (
+                {PORTRAIT_TEMPLATES.map((template, index) => (
                   <button
                     key={index}
                     onClick={() => setSelectedTemplate(template)}
-                    className={`relative shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors
-                      ${selectedTemplate === template ? 'border-blue-500' : 'border-gray-200 hover:border-blue-300'}`}
+                    className={`${TEMPLATE_BUTTON_STYLES} ${
+                      selectedTemplate === template ? 'border-blue-500' : 'border-gray-200'
+                    }`}
                   >
-                    <Image 
-                      src={template} 
-                      alt={`Portrait Style ${index + 1}`} 
-                      fill 
-                      className="object-cover"
-                    />
+                    <div className="relative w-full h-full">
+                      <Image 
+                        src={template} 
+                        alt={`Portrait Style ${index + 1}`} 
+                        fill
+                        sizes={THUMBNAIL_SIZES}
+                        className="object-cover"
+                        priority={index < VISIBLE_ITEMS}
+                      />
+                    </div>
                   </button>
                 ))}
               </div>
@@ -653,16 +697,23 @@ export default function RemoveBackgroundAction() {
 
             {/* Right arrow */}
             <button
-              onClick={() => setCurrentIndex(prev => Math.min(prev + 1, templates.length - VISIBLE_ITEMS))}
-              disabled={currentIndex >= templates.length - VISIBLE_ITEMS}
+              onClick={() => setCurrentIndex(prev => Math.min(prev + 1, PORTRAIT_TEMPLATES.length - VISIBLE_ITEMS))}
+              disabled={currentIndex >= PORTRAIT_TEMPLATES.length - VISIBLE_ITEMS}
               className={`p-2 rounded-full ${
-                currentIndex >= templates.length - VISIBLE_ITEMS
+                currentIndex >= PORTRAIT_TEMPLATES.length - VISIBLE_ITEMS
                   ? 'text-gray-300' 
                   : 'text-gray-600 hover:bg-gray-100'
               }`}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                width={ARROW_BUTTON_SIZE} 
+                height={ARROW_BUTTON_SIZE} 
+                fill="none" 
+                viewBox={`0 0 ${ARROW_BUTTON_SIZE} ${ARROW_BUTTON_SIZE}`} 
+                stroke="currentColor"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={STROKE_WIDTH} d="M9 5l7 7-7 7" />
               </svg>
             </button>
           </div>

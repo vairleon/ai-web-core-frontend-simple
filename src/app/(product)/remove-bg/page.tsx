@@ -46,6 +46,8 @@ const MIN_RESIZE_HEIGHT = 50;
 const TEMPLATE_ITEM_WIDTH = 80;
 const TEMPLATE_GAP = 16;
 const SLIDER_ITEM_OFFSET = TEMPLATE_ITEM_WIDTH + TEMPLATE_GAP;
+const IMAGE_SIZES = "(max-width: 800px) 100vw, 800px";
+const THUMBNAIL_SIZES = "(max-width: 80px) 100vw, 80px";
 
 // Helper function to load images
 const loadImage = (src: string): Promise<HTMLImageElement> => {
@@ -619,8 +621,8 @@ export default function RemoveBackgroundAction() {
                     <Image 
                       src={previewUrl} 
                       alt="Original" 
-                      width={imageDimensions.width}
-                      height={imageDimensions.height}
+                      fill
+                      sizes={IMAGE_SIZES}
                       className="rounded-lg object-contain"
                     />
                   </div>
@@ -628,8 +630,8 @@ export default function RemoveBackgroundAction() {
                     <Image 
                       src={resultUrl} 
                       alt="Result" 
-                      width={imageDimensions.width}
-                      height={imageDimensions.height}
+                      fill
+                      sizes={IMAGE_SIZES}
                       className="rounded-lg object-contain"
                     />
                   </div>
@@ -686,6 +688,7 @@ export default function RemoveBackgroundAction() {
                       src={selectedBackground} 
                       alt="Background" 
                       fill
+                      sizes={IMAGE_SIZES}
                       className="object-cover rounded-lg"
                     />
                     
@@ -851,7 +854,8 @@ export default function RemoveBackgroundAction() {
                               <Image 
                                 src={bg} 
                                 alt={`Background ${index + 1}`} 
-                                fill 
+                                fill
+                                sizes={THUMBNAIL_SIZES}
                                 className="object-cover"
                               />
                             </button>
@@ -899,7 +903,8 @@ export default function RemoveBackgroundAction() {
                     <Image 
                       src={selectedBackground} 
                       alt="Background" 
-                      fill 
+                      fill
+                      sizes={IMAGE_SIZES}
                       className="object-cover rounded-lg"
                     />
                     <Rnd
@@ -991,6 +996,7 @@ export default function RemoveBackgroundAction() {
                           src={croppedResultUrl} 
                           alt="Result" 
                           fill
+                          sizes={IMAGE_SIZES}
                           className="object-fill rounded-lg"
                           draggable={false}
                           style={{ 
