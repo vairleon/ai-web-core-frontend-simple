@@ -14,6 +14,7 @@ export default function ProductsPage() {
   // Product routes mapping
   const productRoutes: Record<string, string> = {
     'removebg': '/remove-bg',
+    'portrait': "/portrait"
     // Add more product routes here as they become available
   };
 

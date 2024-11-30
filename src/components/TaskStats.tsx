@@ -20,7 +20,7 @@ export function TaskStats() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const response = await fetch('http://localhost:3001/api/task/stats', {
+        const response = await fetch('http://localhost:3000/api/task/stats', {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`,
           },

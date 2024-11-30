@@ -12,7 +12,7 @@ export function TaskList() {
   useEffect(() => {
     const fetchTasks = async () => {
       try {
-        const response = await fetch('http://localhost:3001/api/task/get_tasks', {
+        const response = await fetch('http://localhost:3000/api/task/get_tasks', {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`,
           },

@@ -1,7 +1,7 @@
 import { LoginResponse, User, UserExtraInfo, UserRole, RegisterUserData, TaskTemplate, Task, CreateTaskParams } from '@/types/api';
 import { getAuthToken } from './cookies';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
 // Helper function to handle API responses
 async function handleResponse<T>(response: Response): Promise<T> {
@@ -69,6 +69,7 @@ const api = {
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include',
       body: JSON.stringify({ userData }),
     });
 
@@ -247,6 +248,7 @@ const api = {
       headers: {
         'Authorization': `Bearer ${getAuthToken()}`,
       },
+      credentials: 'include',
       body: formData,
     });
 
