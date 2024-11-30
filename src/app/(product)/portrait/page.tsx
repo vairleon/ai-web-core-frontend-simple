@@ -18,6 +18,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 
 interface TemplateDataSchema {
   imageUrl: string;
+  text: string;
 }
 
 interface TemplateResultSchema {
@@ -78,17 +79,6 @@ export default function RemoveBackgroundAction() {
   const [selectedEffect, setSelectedEffect] = useState('none');
   const [zoomLevel, setZoomLevel] = useState(1);
   // const [viewportPosition, setViewportPosition] = useState({ x: 0, y: 0 });
-  const [backgroundImages] = useState([
-    '/example.png',
-    '/example.png',
-    '/example.png',
-    '/example.png',
-    '/example.png',
-    '/example.png',
-    '/example.png',
-    '/example.png',
-  ]);
-
   // 添加图片尺寸状态
   const [imageDimensions, setImageDimensions] = useState({
     width: MAX_DISPLAY_SIZE,
@@ -165,11 +155,12 @@ export default function RemoveBackgroundAction() {
           // Upload and process
           const uploadResult = await api.uploadImage(file);
           const taskData: TemplateDataSchema = {
-            imageUrl: uploadResult.url
+            imageUrl: uploadResult.url,
+            text: 'default'
           };
 
           const newTask = await api.createTask({
-            name: 'Remove Background',
+            name: 'Generate Portrait',
             data: JSON.stringify(taskData),
             templateName: TemplateName,
           });
@@ -469,6 +460,17 @@ export default function RemoveBackgroundAction() {
     }
   };
 
+  // Add new state for templates
+  const [templates] = useState([
+    '/Portrait/p1.jpeg',
+    '/Portrait/p2.jpeg',
+    '/Portrait/p3.jpeg',
+    '/Portrait/p4.jpg',
+    '/Portrait/p5.jpeg',
+    '/Portrait/p6.jpeg',
+  ]);
+  const [selectedTemplate, setSelectedTemplate] = useState('/Portrait/p1.jpeg');
+
   //
   return (
     <div className='flex max-w-6xl mx-auto flex-col items-center justify-center py-2 min-h-screen'>
@@ -510,9 +512,8 @@ export default function RemoveBackgroundAction() {
             disabled={loading}
           />
         </div>
-
-        {/* Main content area with increased size */}
-        <div className="relative w-full max-w-16xl min-h-[600px] my-8"> {/* Increased size */}
+         {/*  Templates Slider */}
+         <div className="relative w-full max-w-16xl min-h-[600px]">
           {/* Toolbar */}
           <div className="absolute right-0 top-0 z-10">
             <div className="bg-white shadow-lg rounded-lg p-1 transition-all duration-300 w-12 hover:w-48 group">
@@ -609,47 +610,103 @@ export default function RemoveBackgroundAction() {
               </div>
             </div>
           </div>
+        </div>
 
-          {/* Status and Download Section */}
-          <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50 flex justify-center gap-4">
-            {loading ? (
-              <div className="bg-white/80 backdrop-blur-sm px-6 py-3 rounded-lg shadow flex items-center gap-2">
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500"></div>
-                <span>Processing your image...</span>
+        {/* Portrait Templates Slider - Moved below the main content */}
+        <div className="w-full max-w-[800px] mt-0">
+          <h3 className="text-lg font-medium text-gray-900 mb-4">Select Portrait Style</h3>
+          <div className="flex items-center justify-center gap-4">
+            {/* Left arrow */}
+            <button
+              onClick={() => setCurrentIndex(prev => Math.max(prev - 1, 0))}
+              disabled={currentIndex === 0}
+              className={`p-2 rounded-full ${currentIndex === 0 ? 'text-gray-300' : 'text-gray-600 hover:bg-gray-100'}`}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+
+            {/* Templates Container */}
+            <div className="overflow-hidden w-[580px]">
+              <div 
+                className="flex gap-4 transition-transform duration-300 ease-in-out"
+                style={{ transform: `translateX(-${currentIndex * SLIDER_ITEM_OFFSET}px)` }}
+              >
+                {templates.map((template, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setSelectedTemplate(template)}
+                    className={`relative shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors
+                      ${selectedTemplate === template ? 'border-blue-500' : 'border-gray-200 hover:border-blue-300'}`}
+                  >
+                    <Image 
+                      src={template} 
+                      alt={`Portrait Style ${index + 1}`} 
+                      fill 
+                      className="object-cover"
+                    />
+                  </button>
+                ))}
               </div>
-            ) : downloadReady && (
-              <div className="flex gap-4">
-                <button
-                  onClick={downloadComposedImage}
-                  className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-8 py-3 rounded-lg
-                             hover:from-blue-600 hover:to-blue-700 transition-all duration-200
-                             shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-                >
-                  Download Image
-                </button>
-                <button
-                  onClick={() => {
-                    setIsReset(true);
-                    setColorAdjustments({
-                      brightness: 100,
-                      contrast: 100,
-                      saturation: 100,
-                    });
-                    setSelectedBackground('/templates/white-bg.jpg');
-                    setViewportPosition(centerPosition);
-                    setResizedImageDimensions({
-                      width: originalImageDimensions.width,
-                      height: originalImageDimensions.height
-                    });
-                  }}
-                  className="bg-gray-100 text-gray-700 px-8 py-3 rounded-lg hover:bg-gray-200 
-                             transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-                >
-                  Reset Changes
-                </button>
-              </div>
-            )}
+            </div>
+
+            {/* Right arrow */}
+            <button
+              onClick={() => setCurrentIndex(prev => Math.min(prev + 1, templates.length - VISIBLE_ITEMS))}
+              disabled={currentIndex >= templates.length - VISIBLE_ITEMS}
+              className={`p-2 rounded-full ${
+                currentIndex >= templates.length - VISIBLE_ITEMS
+                  ? 'text-gray-300' 
+                  : 'text-gray-600 hover:bg-gray-100'
+              }`}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
           </div>
+        </div>
+
+        {/* Status and Download Section */}
+        <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50 flex justify-center gap-4">
+          {loading ? (
+            <div className="bg-white/80 backdrop-blur-sm px-6 py-3 rounded-lg shadow flex items-center gap-2">
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500"></div>
+              <span>Processing your image...</span>
+            </div>
+          ) : downloadReady && (
+            <div className="flex gap-4">
+              <button
+                onClick={downloadComposedImage}
+                className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-8 py-3 rounded-lg
+                           hover:from-blue-600 hover:to-blue-700 transition-all duration-200
+                           shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+              >
+                Download Image
+              </button>
+              <button
+                onClick={() => {
+                  setIsReset(true);
+                  setColorAdjustments({
+                    brightness: 100,
+                    contrast: 100,
+                    saturation: 100,
+                  });
+                  setSelectedBackground('/templates/white-bg.jpg');
+                  setViewportPosition(centerPosition);
+                  setResizedImageDimensions({
+                    width: originalImageDimensions.width,
+                    height: originalImageDimensions.height
+                  });
+                }}
+                className="bg-gray-100 text-gray-700 px-8 py-3 rounded-lg hover:bg-gray-200 
+                           transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+              >
+                Reset Changes
+              </button>
+            </div>
+          )}
         </div>
       </main>
       <Footer />
