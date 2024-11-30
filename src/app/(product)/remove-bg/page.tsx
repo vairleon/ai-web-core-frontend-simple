@@ -79,14 +79,12 @@ export default function RemoveBackgroundAction() {
   const [zoomLevel, setZoomLevel] = useState(1);
   // const [viewportPosition, setViewportPosition] = useState({ x: 0, y: 0 });
   const [backgroundImages] = useState([
-    '/example.png',
-    '/example.png',
-    '/example.png',
-    '/example.png',
-    '/example.png',
-    '/example.png',
-    '/example.png',
-    '/example.png',
+    '/RemoveBg/bg1.jpg',
+    '/RemoveBg/bg2.jpg',
+    '/RemoveBg/bg3.jpg',
+    '/RemoveBg/bg4.png',
+    '/RemoveBg/bg5.jpeg',
+    '/RemoveBg/bg6.jpg'
   ]);
 
   // 添加图片尺寸状态

@@ -3,8 +3,8 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   images: {
     // reactStrictMode: true,
-    // domains: ['http://localhost:3000'], // Add any other domains you need to support
-    domains: ['http://webai1.work4creation.fun'], // Add any other domains you need to support
+    domains: ['http://localhost:3000'], // Add any other domains you need to support
+    // domains: ['http://webai1.work4creation.fun'], // Add any other domains you need to support
     // If you're also using other domains (like production URL), add them here
     // For example: domains: ['localhost', 'your-production-domain.com']
 
