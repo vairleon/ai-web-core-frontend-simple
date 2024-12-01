@@ -100,7 +100,8 @@ export default function TaskPage() {
   useEffect(() => {
     const fetchTasks = async () => {
       try {
-        const tasks = await api.getAllTasks();
+        const user = await api.getProfile();
+        const tasks = await api.getAllTasks(user.role);
         setTasks(tasks);
         setFilteredTasks(tasks);
       } catch (err: any) {

@@ -270,8 +270,12 @@ const api = {
     return handleResponse<Task>(response);
   },
 
-  getAllTasks: async (): Promise<Task[]> => {
-    return Request<Task[]>('/api/task/get_tasks');
+  getAllTasks: async (userRole: UserRole): Promise<Task[]> => {
+    if (userRole === 'admin') {
+      return Request<Task[]>('/api/admin/tasks');
+    } else {
+      return Request<Task[]>('/api/task/get_tasks');
+    }
   },
 
   getTaskById: async (taskId: number): Promise<Task> => {
