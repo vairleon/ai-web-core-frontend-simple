@@ -10,9 +10,8 @@ const nextConfig: NextConfig = {
 
     remotePatterns: [
       {
-        protocol: 'http',
+        protocol: 'https',
         hostname: 'webai1.work4creation.fun',
-        port: '3000',
         pathname: '/uploads/**',
       },
     ],

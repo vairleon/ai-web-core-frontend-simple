@@ -42,6 +42,8 @@ const ARROW_BUTTON_SIZE = 24;
 const STROKE_WIDTH = 2;
 const HEADING_MARGIN = 4;
 const TEMPLATE_CONTAINER_MARGIN = 8;
+const HOVER_SCALE = 1.25;
+const HOVER_TRANSITION_DURATION = 300;
 
 interface TemplateDataSchema {
   imageUrl: string;
@@ -76,6 +78,16 @@ const PORTRAIT_TEMPLATES = [
   '/Portrait/p6.jpeg',
 ];
 
+// 添加模板描述的映射
+const PORTRAIT_TEMPLATES_MAP = {
+  '/Portrait/p1.jpeg': '证件照 - 标准白底',
+  '/Portrait/p2.jpeg': '证件照 - 蓝底商务',
+  '/Portrait/p3.jpeg': '艺术写真 - 暖色调',
+  '/Portrait/p4.jpg': '毕业照 - 学术风格',
+  '/Portrait/p5.jpeg': '职业照 - 专业商务',
+  '/Portrait/p6.jpeg': '生活照 - 自然风格',
+} as const;
+
 // 添加新的样式常量
 const TEMPLATE_CONTAINER_STYLES = {
   width: CONTAINER_WIDTH,
@@ -83,8 +95,10 @@ const TEMPLATE_CONTAINER_STYLES = {
   backgroundColor: 'white',
   borderRadius: '12px',
   boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
+  overflow: 'visible'
 };
 
+// 修改模板按钮样式，添加悬停动画
 const TEMPLATE_BUTTON_STYLES = `
   relative 
   shrink-0 
@@ -93,8 +107,36 @@ const TEMPLATE_BUTTON_STYLES = `
   rounded-lg 
   overflow-hidden 
   border-2 
-  transition-colors
-  hover:border-blue-300
+  transition-all
+  duration-${HOVER_TRANSITION_DURATION}
+  ease-out
+  hover:scale-${HOVER_SCALE * 100}
+  hover:z-10
+  focus:outline-none
+  focus:ring-2
+  focus:ring-blue-500
+  group
+`;
+
+// 添加描述框样式
+const DESCRIPTION_STYLES = `
+  absolute
+  -top-10
+  left-1/2
+  -translate-x-1/2
+  bg-black
+  bg-opacity-75
+  text-white
+  px-3
+  py-1
+  rounded-full
+  text-sm
+  whitespace-nowrap
+  opacity-0
+  transition-opacity
+  duration-200
+  pointer-events-none
+  group-hover:opacity-100
 `;
 
 export default function RemoveBackgroundAction() {
@@ -307,7 +349,7 @@ export default function RemoveBackgroundAction() {
               
               // 更新状，但保持原始 resultUrl 不变
               setResultUrl(imageUrl); // 原始图片用于 Compare 视图
-              setCroppedResultUrl(croppedUrl); // 新增状态用于 Background 和 Color 视图
+              setCroppedResultUrl(croppedUrl); // 新增状态用 Background 和 Color 视图
               
               // 更新裁剪后的尺寸
               const newDimensions = calculateAspectRatio(boundingBox.width, boundingBox.height);
@@ -382,6 +424,9 @@ export default function RemoveBackgroundAction() {
       setIsSelected(false);
     }
   };
+
+  // 在组件中添加描述显示状态
+  const [activeDescription, setActiveDescription] = useState<string>('');
 
   // 在组件中添加全局点击事件监听
   useEffect(() => {
@@ -643,16 +688,26 @@ export default function RemoveBackgroundAction() {
         </div>
 
         {/* Portrait Templates Slider - Moved below the main content */}
-        <div className="w-full" style={TEMPLATE_CONTAINER_STYLES}>
+        <div className="w-full relative" style={TEMPLATE_CONTAINER_STYLES}>
           <h3 className="text-lg font-medium text-gray-900 mb-4 text-center">
             Select Portrait Style
           </h3>
+          
+          {/* 固定的当前选择描述区域 */}
+          <div className="text-center mb-6 h-6 text-gray-700 font-medium transition-all duration-300">
+            {PORTRAIT_TEMPLATES_MAP[selectedTemplate as keyof typeof PORTRAIT_TEMPLATES_MAP] || '请选择一个模板风格'}
+          </div>
+
           <div className="flex items-center justify-center gap-4">
             {/* Left arrow */}
             <button
               onClick={() => setCurrentIndex(prev => Math.max(prev - 1, 0))}
               disabled={currentIndex === 0}
-              className={`p-2 rounded-full ${currentIndex === 0 ? 'text-gray-300' : 'text-gray-600 hover:bg-gray-100'}`}
+              className={`p-2 rounded-full transition-colors ${
+                currentIndex === 0 
+                  ? 'text-gray-300' 
+                  : 'text-gray-600 hover:bg-gray-100'
+              }`}
             >
               <svg 
                 xmlns="http://www.w3.org/2000/svg" 
@@ -666,8 +721,8 @@ export default function RemoveBackgroundAction() {
               </svg>
             </button>
 
-            {/* Templates Container */}
-            <div className="overflow-hidden" style={{ width: SLIDER_CONTAINER_WIDTH }}>
+            {/* Templates Container - 修改这里 */}
+            <div className="overflow-visible relative" style={{ width: SLIDER_CONTAINER_WIDTH }}>
               <div 
                 className="flex gap-4 transition-transform duration-300 ease-in-out"
                 style={{ transform: `translateX(-${currentIndex * SLIDER_ITEM_OFFSET}px)` }}
@@ -675,20 +730,60 @@ export default function RemoveBackgroundAction() {
                 {PORTRAIT_TEMPLATES.map((template, index) => (
                   <button
                     key={index}
-                    onClick={() => setSelectedTemplate(template)}
+                    onClick={() => {
+                      setSelectedTemplate(template);
+                    }}
                     className={`${TEMPLATE_BUTTON_STYLES} ${
-                      selectedTemplate === template ? 'border-blue-500' : 'border-gray-200'
+                      selectedTemplate === template 
+                        ? 'border-blue-500 ring-2 ring-blue-500' 
+                        : 'border-gray-200'
                     }`}
+                    style={{ 
+                      // 添加 transform-origin 确保放大效果以中心点为基准
+                      transformOrigin: 'center center',
+                      // 确保悬停时在最上层
+                      zIndex: 'auto'
+                    }}
                   >
                     <div className="relative w-full h-full">
                       <Image 
                         src={template} 
-                        alt={`Portrait Style ${index + 1}`} 
+                        alt={PORTRAIT_TEMPLATES_MAP[template as keyof typeof PORTRAIT_TEMPLATES_MAP]}
                         fill
                         sizes={THUMBNAIL_SIZES}
-                        className="object-cover"
+                        className="object-cover transition-transform duration-300 group-hover:scale-110"
                         priority={index < VISIBLE_ITEMS}
                       />
+                      
+                      {/* 悬停时显示的描述 */}
+                      <div className={DESCRIPTION_STYLES}>
+                        {PORTRAIT_TEMPLATES_MAP[template as keyof typeof PORTRAIT_TEMPLATES_MAP]}
+                      </div>
+
+                      {/* 选中状态指示器 */}
+                      {selectedTemplate === template && (
+                        <div className="absolute inset-0 bg-blue-500 bg-opacity-20 flex items-center justify-center">
+                          <div className="bg-white rounded-full p-1">
+                            <svg className="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                              <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" />
+                            </svg>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* 底部小点点指示器 */}
+                      <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 flex gap-1">
+                        {PORTRAIT_TEMPLATES.map((_, dotIndex) => (
+                          <div
+                            key={dotIndex}
+                            className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
+                              selectedTemplate === template && dotIndex === index
+                                ? 'bg-blue-500 scale-125'
+                                : 'bg-gray-300'
+                            }`}
+                          />
+                        ))}
+                      </div>
                     </div>
                   </button>
                 ))}
@@ -699,7 +794,7 @@ export default function RemoveBackgroundAction() {
             <button
               onClick={() => setCurrentIndex(prev => Math.min(prev + 1, PORTRAIT_TEMPLATES.length - VISIBLE_ITEMS))}
               disabled={currentIndex >= PORTRAIT_TEMPLATES.length - VISIBLE_ITEMS}
-              className={`p-2 rounded-full ${
+              className={`p-2 rounded-full transition-colors ${
                 currentIndex >= PORTRAIT_TEMPLATES.length - VISIBLE_ITEMS
                   ? 'text-gray-300' 
                   : 'text-gray-600 hover:bg-gray-100'
