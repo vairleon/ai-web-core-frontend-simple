@@ -37,10 +37,15 @@ async function Request<T>(url: string, type='GET', requiresAuth: boolean = true)
   return handleResponse<T>(response);
 }
 
-
+interface LoginParams {
+  email?: string;
+  phone?: string;
+  userName?: string;
+  password: string;
+}
 
 const api = {
-  login: async (email: string, password: string): Promise<LoginResponse> => {
+  login: async (params: LoginParams): Promise<LoginResponse> => {
     const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
       method: 'POST',
       headers: {
@@ -48,14 +53,14 @@ const api = {
         'Accept': 'application/json'
       },
       credentials: 'include',
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify(params),
     });
-
+    
     if (!response.ok) {
       const errorData = await response.json().catch(() => null);
       throw new Error(errorData?.message || `HTTP error! status: ${response.status}`);
     }
-
+    
     return response.json();
   },
 

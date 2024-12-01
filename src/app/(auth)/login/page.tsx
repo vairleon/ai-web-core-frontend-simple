@@ -6,13 +6,20 @@ import Link from 'next/link';
 import { setAuthCookie } from '@/utils/cookies';
 import api from '@/utils/api';
 
+interface LoginFormData {
+  email?: string;
+  phone?: string;
+  userName?: string;
+  password: string;
+}
+
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [formData, setFormData] = useState({
-    email: '',
+  const [formData, setFormData] = useState<LoginFormData>({
     password: '',
   });
+  const [loginMethod, setLoginMethod] = useState<'email' | 'phone' | 'userName'>('email');
   const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -20,7 +27,12 @@ export default function LoginPage() {
     setError('');
 
     try {
-      const data = await api.login(formData.email, formData.password);
+      const loginParams: LoginFormData = {
+        password: formData.password,
+        [loginMethod]: formData[loginMethod]
+      };
+      
+      const data = await api.login(loginParams);
       setAuthCookie(data.accessToken);
       handleLoginSuccess();
     } catch (err: any) {
@@ -56,19 +68,57 @@ export default function LoginPage() {
 
         <form className="space-y-6" onSubmit={handleSubmit}>
           <div>
-            <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-900">
-              Email address
+            <div className="flex gap-4 mb-4">
+              <button
+                type="button"
+                onClick={() => setLoginMethod('email')}
+                className={`px-3 py-1 rounded ${
+                  loginMethod === 'email' 
+                    ? 'bg-indigo-600 text-white' 
+                    : 'bg-gray-100 text-gray-700'
+                }`}
+              >
+                Email
+              </button>
+              <button
+                type="button"
+                onClick={() => setLoginMethod('phone')}
+                className={`px-3 py-1 rounded ${
+                  loginMethod === 'phone' 
+                    ? 'bg-indigo-600 text-white' 
+                    : 'bg-gray-100 text-gray-700'
+                }`}
+              >
+                Phone
+              </button>
+              <button
+                type="button"
+                onClick={() => setLoginMethod('userName')}
+                className={`px-3 py-1 rounded ${
+                  loginMethod === 'userName' 
+                    ? 'bg-indigo-600 text-white' 
+                    : 'bg-gray-100 text-gray-700'
+                }`}
+              >
+                Username
+              </button>
+            </div>
+
+            <label htmlFor="loginInput" className="block text-sm font-medium leading-6 text-gray-900">
+              {loginMethod === 'email' ? 'Email address' : 
+               loginMethod === 'phone' ? 'Phone number' : 
+               'Username'}
             </label>
             <div className="mt-2">
               <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
+                id="loginInput"
+                name={loginMethod}
+                type={loginMethod === 'email' ? 'email' : 'text'}
+                autoComplete={loginMethod}
                 required
                 className="block w-full rounded-md border-0 py-1.5 px-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                value={formData.email}
-                onChange={(e) => setFormData({...formData, email: e.target.value})}
+                value={formData[loginMethod] || ''}
+                onChange={(e) => setFormData({...formData, [loginMethod]: e.target.value})}
               />
             </div>
           </div>
