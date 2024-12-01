@@ -43,14 +43,12 @@ export default function DashboardNav({ user }: NavProps) {
                 Products
               </Link>
 
-              {(isTaskSlaver || isAdmin) && (
               <Link
                 href="/dashboard/tasks"
                 className={`rounded-md px-3 py-2 text-sm font-medium ${isActive('/dashboard/tasks')}`}
               >
                 Tasks
               </Link>
-              )}
               
               {isAdmin && (
                 <Link

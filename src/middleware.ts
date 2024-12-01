@@ -45,11 +45,11 @@ export async function middleware(request: NextRequest) {
         return new NextResponse(null, { status: 404 });
       }
       
-      // For task slave pages
-      if (isTaskPage && userData.role !== 'admin' && userData.role !== 'task_slave') {
-        // return NextResponse.redirect(new URL('/dashboard', request.url));
-        return new NextResponse(null, { status: 404 });
-      }
+      // // For task slave pages
+      // if (isTaskPage && userData.role !== 'admin' && userData.role !== 'task_slave') {
+      //   // return NextResponse.redirect(new URL('/dashboard', request.url));
+      //   return new NextResponse(null, { status: 404 });
+      // }
 
     } catch (error) {
       // If verification fails, clear token and redirect to login

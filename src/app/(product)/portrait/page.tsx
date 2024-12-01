@@ -157,8 +157,8 @@ const SLIDER_WRAPPER_STYLES = {
 
 export default function GeneratePortraitAction() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string>('/example.png');
-  const [resultUrl, setResultUrl] = useState<string>('/removed_bg.png');
+  const [previewUrl, setPreviewUrl] = useState<string>('/Portrait/input/lvhuijin.jpg');
+  const [resultUrl, setResultUrl] = useState<string>('/Portrait/output/Portrait_lvhuijin_.png');
   const [task, setTask] = useState<Task | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
